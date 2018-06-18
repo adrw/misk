@@ -63,6 +63,8 @@ $ yarn start
 - [x] Create sidebar UI
 - [ ] Have module registration also add button to sidebar
 - [x] Have sidebar buttons trigger the Import of modules
+- [ ] Use [React-Loadable](https://github.com/jamiebuilds/react-loadable) instead of raw `import(./module.js)` statement in `ModuleComponent.tsx`. Further reading: [Author: How to blog](https://jamie.build/react-loadable.html), [Example app](https://github.com/jamiebuilds/react-loadable-example)
+- [ ] Consider Parcel.js instead of Webpack 
 - [ ] Dynamically extensible router. Each module gets a namespace and handles all routes within it
 - [ ] Remove `const BrowserRouterService = require('frint-router/BrowserRouterService')` when `Frint-Router` includes typings
 - [ ] Patch up `app/index.ts` in main and modules once Frint typings and `createApp private class` error fixed

@@ -22,7 +22,8 @@
     "reinstall:main": "rm -rf node_modules; yarn install",
     "reinstall:lib": "cd ../@misk/common; rm -rf node_modules; yarn install",
     "reinstall:modules": "for d in ../modules/*/; do bash -c \"cd $d; rm -rf node_modules; yarn install\"; done",
-    "reinstall": "npm run reinstall:main && npm run reinstall:lib && npm run reinstall:modules"
+    "reinstall": "npm run reinstall:main && npm run reinstall:lib && npm run reinstall:modules",
+    "parcel": "parcel"
   },
   "dependencies": {
     "@blueprintjs/core": "^2.3.1",
