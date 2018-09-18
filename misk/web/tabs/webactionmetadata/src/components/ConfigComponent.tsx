@@ -82,7 +82,7 @@ export default class ConfigComponent extends React.PureComponent<IConfigProps> {
     const { resources, status } = this.props
     return(
       <Container>
-        <h1>Config</h1>
+        <h1>Web Action Metadata</h1>
         <p>{status}</p>
         {resources && resources.map(resource => this.renderConfig(resource))}
       </Container>

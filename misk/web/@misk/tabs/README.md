@@ -29,6 +29,7 @@ $ yarn add @misk/tabs
 Tabs
 ---
 - `@misktabs/config`
+- `@misktabs/webactionmetadata`
 
 Contributing
 ---

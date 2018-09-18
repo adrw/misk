@@ -1,4 +1,4 @@
-import { makeExternals } from "@misk/dev" 
+const { makeExternals } = require("@misk/dev")
 
 /**
  * Please submit PR to reserve your tab name and port
@@ -8,10 +8,14 @@ export const MiskTabMetadata = {
     "external": ["MiskTabs", "Config"],
     "port": 3200
   },
-  "@misktabs/"
+  "@misktabs/webactionmetadata": {
+    "external": ["MiskTabs", "WebActionMetadata"],
+    "port": 3201
+  }
 }
 
-
-export const externals = makeExternals({
-  "@misktabs/config": ["MiskTabs", "Config"],
-})
+export const externals = makeExternals(
+  Object.entries(MiskTabMetadata).map(
+    ([tabname, metadata]) => { ({[tabname]: metadata.external}) }
+  )
+)

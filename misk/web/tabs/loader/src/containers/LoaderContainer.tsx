@@ -57,8 +57,8 @@ class LoaderContainer extends React.Component<ILoaderProps> {
               description={`Unable to get list of tabs from server to begin dashbaord render. Server endpoint '${adminTabsUrl}' is unavailable.`}
             >
             <Card>
-              <h5 className={Classes.SKELETON}>This is test text</h5>
-              <p className={Classes.SKELETON}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eget tortor felis. Fusce dapibus metus in dapibus mollis. Quisque eget ex diam.</p>
+              <h5 className={Classes.SKELETON}>Your head is not an artifact!</h5>
+              <p className={Classes.SKELETON}>Maybe we better talk out here; the observation lounge has turned into a swamp. Some days you get the bear, and some days the bear gets you.</p>
             </Card>
             </NonIdealState>
           </TabContainer>

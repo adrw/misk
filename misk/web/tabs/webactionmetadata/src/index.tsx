@@ -44,7 +44,7 @@ const render = () => {
         <App history={history} />
       </Provider>
     </AppContainer>,
-    document.getElementById("config")
+    document.getElementById("webactionmetadata")
   )
 }
 

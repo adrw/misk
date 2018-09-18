@@ -33,7 +33,7 @@ class TabContainer extends React.Component<ITabProps, {children : any}> {
 
   render() {
     const { resources, status } = this.props.config
-    if (status && window.location.pathname === "/_admin/config/") {
+    if (status) {
       return (
         <ConfigComponent resources={resources} status={status} />
       )

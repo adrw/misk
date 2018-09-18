@@ -1,6 +1,6 @@
 {
   "name": "@misk/tabs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Microservice Kontainer Tabs",
   "author": "Square/Misk Authors (https://github.com/square/misk/graphs/contributors)",
   "main": "lib/tabs.js",
@@ -27,7 +27,7 @@
     "reinstall": "rm -rf node_modules/ && yarn install",
     "test": "echo no tests"
   },
-  "devDependencies": {
+  "dependencies": {
     "@misk/dev": "^0.0.27"
   }
 }
