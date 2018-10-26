@@ -1,6 +1,7 @@
 package misk.web
 
 import misk.MiskCaller
+import misk.security.authz.AccessAnnotationEntry
 
 abstract class WebTab(
   slug: String,
@@ -29,3 +30,14 @@ class DashboardTab(
   roles: Set<String> = setOf(),
   services: Set<String> = setOf()
 ) : WebTab(slug = slug, url_path_prefix = url_path_prefix, roles = roles, services = services)
+
+//inline fun <reified T : AccessAnnotationEntry> DashboardTab(
+//  slug: String,
+//  url_path_prefix: String,
+//  name: String,
+//  category: String = "Container Admin",
+//  roles: Set<String> = setOf(),
+//  services: Set<String> = setOf()
+//): WebTab {
+//  return WebTab(, )
+//}
