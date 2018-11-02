@@ -11,7 +11,7 @@ interface ISidebarProps {
   tabs: IDashboardTab[]
 }
 
-const Sidebar = styled.div`
+const Sidebar = styled("div")`
   position: absolute;
 `
 

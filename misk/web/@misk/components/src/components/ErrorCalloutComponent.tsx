@@ -18,7 +18,7 @@ const ErrorCallout = styled(Callout)`
   margin: 20px 0;
 `
 
-const RawError = styled.pre`
+const RawError = styled("pre")`
   text-align: left;
 `
 

@@ -12,7 +12,7 @@ interface IData {
   body: string
 }
 
-const Container = styled.div``
+const Container = styled("div")``
 
 export default class TabComponent extends React.PureComponent<IComponentProps> {
   renderExample(data: IData) {

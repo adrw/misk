@@ -2,9 +2,9 @@ import * as React from "react"
 import styled from "react-emotion"
 import { IConfigResources, IConfigState } from "../ducks"
 
-const Container = styled.div``
+const Container = styled("div")``
 
-const ConfigOutput = styled.pre`
+const ConfigOutput = styled("pre")`
   font-family: Menlo, Fira Code;
 `
 

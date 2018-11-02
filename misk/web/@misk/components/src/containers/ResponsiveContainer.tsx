@@ -6,7 +6,7 @@ import styled from "react-emotion"
  * </ResponsiveContainer>
  */
 
-export const ResponsiveContainer = styled.div`
+export const ResponsiveContainer = styled("div")`
   margin: 0 auto;
   @media (min-width: 768px) {
     width: 750px;

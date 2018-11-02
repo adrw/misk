@@ -11,8 +11,8 @@ import {
 import { IconNames } from "@blueprintjs/icons"
 import { IDashboardTab } from "@misk/common"
 import * as React from "react"
-import { Link } from "react-router-dom"
 import styled from "react-emotion"
+import { Link } from "react-router-dom"
 import { ResponsiveContainer } from "../containers"
 
 /**
@@ -114,14 +114,14 @@ const MiskCollapse = styled(Collapse)`
   margin: 60px -20px 0 -20px;
 `
 
-const MiskMenu = styled.div`
+const MiskMenu = styled("div")`
   min-height: 250px;
   @media (max-width: 768px) {
     padding: 0 20px 20px 20px;
   }
 `
 
-const MiskMenuLinks = styled.div`
+const MiskMenuLinks = styled("div")`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -134,14 +134,14 @@ const MiskMenuLink = styled(MiskLink)`
   color: #cecece;
 `
 
-const MiskMenuCategory = styled.span`
+const MiskMenuCategory = styled("span")`
   font-size: 24px;
   color: #9da2a6;
   letter-spacing: 0px;
   display: block;
 `
 
-const MiskMenuDivider = styled.hr`
+const MiskMenuDivider = styled("hr")`
   border-color: #9da2a6;
   margin: 5px 0 10px 0;
 `
