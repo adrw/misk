@@ -9,7 +9,8 @@ kotlin {
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'com.vanniktech.maven.publish'
 apply from: rootProject.file("gradle/localdb.gradle")
-apply from: "https://raw.githubusercontent.com/square/misk-web/master/gradle/web.gradle"
+apply from: "https://raw.githubusercontent.com/square/misk-web/be483bcdc027438fbefd2581892fca1e8d5b9db6/gradle/web.gradle"
+//apply from: "https://raw.githubusercontent.com/square/misk-web/master/gradle/web.gradle"
 
 compileKotlin {
   kotlinOptions {
@@ -29,8 +30,8 @@ sourceSets {
   test.java.srcDirs += 'src/test/kotlin/'
   main.resources {
     srcDirs += [
-      'web/tabs/config/lib',
-      'web/tabs/loader/lib'
+      'web/tabs/admin-dashboard/lib',
+      'web/tabs/config/lib'
     ]
     exclude '**/node_modules'
   }

@@ -1,0 +1,9 @@
+{
+  "output_path": "lib/web/_tab/admin-dashboard",
+  "port": "3100",
+  "version": "0.1.2-alpha-0.1",
+  "zipOnBuild": false,
+  "name": "Admin Dashboard",
+  "relative_path_prefix": "_admin/",
+  "slug": "admin-dashboard"
+}
