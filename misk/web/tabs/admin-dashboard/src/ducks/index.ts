@@ -56,8 +56,6 @@ export function* rootSaga() {
   yield all([fork(watchSimpleNetworkSagas)])
 }
 
-
-
 // import {
 //   connectRouter,
 //   LocationChangeAction,

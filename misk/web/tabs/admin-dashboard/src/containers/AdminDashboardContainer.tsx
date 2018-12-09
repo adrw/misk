@@ -2,6 +2,7 @@ import {
   Navbar,
   response,
   ResponsiveContainer,
+  OfflineComponent,
   TabLoaderComponent
 } from "@misk/core"
 import * as React from "react"
@@ -34,39 +35,46 @@ class AdminDashboardContainer extends React.Component<IContainerProps> {
     //   unavailableEndpointUrls += serviceUrl + " "
     // }
 
-    return (
-      <span>
-        <Navbar
-          environment={
-            response(simpleNetwork, "serviceMetadata").data.environment
-          }
-          links={response(simpleNetwork, "admindashboardtabs").data}
-          homeName={response(simpleNetwork, "serviceMetadata").data.app_name}
-          homeUrl={
-            response(simpleNetwork, "serviceMetadata").data.admin_dashboard_url
-          }
-          navbar_items={
-            response(simpleNetwork, "serviceMetadata").data.navbar_items
-          }
-          status={response(simpleNetwork, "serviceMetadata").data.navbar_status}
-        />
-        <DashboardTabContainer>
-          <TabLoaderComponent
-            tabs={response(simpleNetwork, "admindashboardtabs").data}
+    if (
+      response(simpleNetwork, "admindashboardtabs").data &&
+      response(simpleNetwork, "serviceMetadata").data
+    ) {
+      return (
+        <span>
+          <Navbar
+            environment={
+              response(simpleNetwork, "serviceMetadata").data.environment
+            }
+            links={response(simpleNetwork, "admindashboardtabs").data}
+            homeName={response(simpleNetwork, "serviceMetadata").data.app_name}
+            homeUrl={
+              response(simpleNetwork, "serviceMetadata").data
+                .admin_dashboard_url
+            }
+            navbar_items={
+              response(simpleNetwork, "serviceMetadata").data.navbar_items
+            }
+            status={
+              response(simpleNetwork, "serviceMetadata").data.navbar_status
+            }
           />
-        </DashboardTabContainer>
-      </span>
-    )
-    // } else {
-    //   return (
-    //     <span>
-    //       <Navbar />
-    //       <DashboardTabContainer>
-    //         <OfflineComponent title={"Error Loading Multibound Admin Tabs"} />
-    //       </DashboardTabContainer>
-    //     </span>
-    //   )
-    // }
+          <DashboardTabContainer>
+            <TabLoaderComponent
+              tabs={response(simpleNetwork, "admindashboardtabs").data}
+            />
+          </DashboardTabContainer>
+        </span>
+      )
+    } else {
+      return (
+        <span>
+          <Navbar />
+          <DashboardTabContainer>
+            <OfflineComponent title={"Error Loading Multibound Admin Tabs"} />
+          </DashboardTabContainer>
+        </span>
+      )
+    }
   }
 }
 
