@@ -1,6 +1,5 @@
+apply plugin: 'misk-web-plugin'
 apply from: rootProject.file("gradle/localdb.gradle")
-apply from: "https://raw.githubusercontent.com/square/misk-web/master/gradle/web.gradle"
-
 
 sourceSets {
   main.resources {
@@ -12,7 +11,7 @@ sourceSets {
   }
 }
 
-jar.dependsOn web
+jar.dependsOn webBuild
 
 dependencies {
   compile dep.kotlinStdLib
