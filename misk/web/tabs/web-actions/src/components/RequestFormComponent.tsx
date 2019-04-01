@@ -21,21 +21,13 @@ import * as React from "react"
 import styled from "styled-components"
 import {
   BaseFieldTypes,
-  IActionTypes,
   IDispatchProps,
   IFieldTypeMetadata,
   IState,
   IWebActionInternal,
   TypescriptBaseTypes
 } from "../ducks"
-
-interface IFieldProps {
-  field: IFieldTypeMetadata
-  id: number
-  nestPath: string
-  tag: string
-  types: IActionTypes
-}
+import { generateKeyTag, IFieldProps, safeNumberArray } from "./utilities"
 
 const RequestFieldGroup = styled(Card)`
   margin-bottom: 10px;
@@ -44,17 +36,6 @@ const RequestFieldGroup = styled(Card)`
 const RequestFormGroup = styled(FormGroup)`
   margin: 0 !important;
 `
-
-const generateKeyTag = (props: IFieldProps) =>
-  `${props.tag}::${props.nestPath}${props.field.name}::Keys`
-
-const safeNumberArray = (ids: number | number[]) => {
-  if (typeof ids === "number") {
-    return [ids]
-  } else {
-    return ids
-  }
-}
 
 const RepeatableFieldButton = (
   props: IFieldProps & IState & IDispatchProps

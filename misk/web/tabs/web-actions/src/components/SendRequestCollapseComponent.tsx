@@ -26,6 +26,7 @@ import { HTTPMethod } from "http-method-enum"
 import * as React from "react"
 import { RequestFormComponent } from "../components"
 import { IDispatchProps, IState, IWebActionInternal } from "../ducks"
+import { requestBodyData } from "./utilities"
 
 /**
  * Collapse wrapped Send a Request form for each Web Action card
@@ -76,7 +77,7 @@ export const SendRequestCollapseComponent = (
             HTTPMethodDispatch(props)[method],
             `${tag}::Response`,
             url,
-            simpleSelect(props.simpleForm, `${tag}::Body`, "data")
+            requestBodyData(props)
           )}
           intent={HTTPMethodIntent[method]}
           loading={simpleSelect(
@@ -90,13 +91,9 @@ export const SendRequestCollapseComponent = (
       <Label>
         Request <Tag>{url}</Tag>
       </Label>
-      <Collapse isOpen={simpleSelect(props.simpleForm, `${tag}::Body`, "data")}>
+      <Collapse isOpen={requestBodyData(props).length > 0}>
         <CodePreContainer>
-          {JSON.stringify(
-            simpleSelect(props.simpleForm, `${tag}::Body`, "data"),
-            null,
-            2
-          )}
+          {JSON.stringify(requestBodyData(props), null, 2)}
         </CodePreContainer>
       </Collapse>
       <Collapse

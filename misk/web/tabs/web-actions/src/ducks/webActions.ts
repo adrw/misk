@@ -226,7 +226,11 @@ const groupByWebActionHash = (
 
 function* handleMetadata() {
   try {
-    const { data } = yield call(axios.get, "/api/webaction/metadata")
+    // const { data } = yield call(axios.get, "/api/webaction/metadata")
+    const { data } = yield call(
+      axios.get,
+      "https://raw.githubusercontent.com/adrw/misk-web/adrw/20190325.WebActionsExampleData/examples/data/demo/webactions.json"
+    )
     const { webActionMetadata } = data
     const metadata = chain(webActionMetadata)
       .map((action: IWebActionAPI) => {
