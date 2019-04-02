@@ -27,7 +27,13 @@ import {
   IWebActionInternal,
   TypescriptBaseTypes
 } from "../ducks"
-import { generateKeyTag, IFieldProps, safeNumberArray } from "./utilities"
+import {
+  generateKeyTag,
+  IFieldProps,
+  initializeKeyMap,
+  safeArray,
+  addFieldToKeyMap
+} from "./utilities"
 
 const RequestFieldGroup = styled(Card)`
   margin-bottom: 10px;
@@ -43,7 +49,7 @@ const RepeatableFieldButton = (
   const { repeated } = props.field
   const { id } = props
   const tag = generateKeyTag(props)
-  const ids = safeNumberArray(
+  const ids = safeArray(
     simpleSelect(props.simpleForm, tag, "data", simpleType.array)
   )
   if (repeated) {
@@ -215,10 +221,22 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
 const RequestFormFields = (props: IFieldProps & IState & IDispatchProps) => {
   const uid = props.id || parseInt(uniqueId())
   const keyTag = generateKeyTag(props)
-  const ids = safeNumberArray(
-    simpleSelect(props.simpleForm, keyTag, "data", simpleType.array) ||
-      (props.simpleFormInput(keyTag, OrderedSet([uid]).toJS()) && [uid])
-  )
+  // const ids = safeArray(
+  //   simpleSelect(props.simpleForm, keyTag, "data", simpleType.array) ||
+  //     (props.simpleFormInput(keyTag, OrderedSet([uid]).toJS()) && [uid])
+  // )
+  let ids = simpleSelect(props.simpleForm, keyTag, "data", simpleType.array)
+  if (ids) {
+    ids = safeArray(ids)
+  } else {
+    addFieldToKeyMap({
+      ...props,
+      key: `${uid}`,
+      name: props.field.name
+    })
+    props.simpleFormInput(keyTag, OrderedSet([uid]).toJS())
+    ids = [uid]
+  }
   return (
     <div>
       {ids.map((id: number) => (
@@ -234,6 +252,7 @@ export const RequestFormComponent = (
   const { requestType, types } = props.action
   if (requestType && types && types[requestType] && types[requestType].fields) {
     const { fields } = types[requestType]
+    initializeKeyMap(props)
     return (
       <div>
         {fields.map((field: IFieldTypeMetadata) => (
