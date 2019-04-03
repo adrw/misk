@@ -93,6 +93,18 @@ export interface IWebActionInternal {
   returnType: string
   requestType: string
   types: IActionTypes
+  typesMetadata: ITypesMetadata
+}
+
+export interface ITypesFieldMetadata {
+  parent: string
+  children: string[]
+  id: string
+  name: string
+}
+
+export interface ITypesMetadata {
+  [key: string]: ITypesFieldMetadata
 }
 
 /**
@@ -224,9 +236,28 @@ const groupByWebActionHash = (
   action.responseMediaType +
   action.returnType
 
+// const generateFieldTypesMetadata = () => {}
+
+const generateTypesMetadata = (action: IWebActionAPI) => {
+  const baseMetadata: ITypesMetadata = {
+    root: { parent: "", children: [], id: "", name: "" }
+  }
+  if (action.types) {
+    console.log(baseMetadata, action.types)
+    
+    return baseMetadata
+  } else {
+    return baseMetadata
+  }
+}
+
 function* handleMetadata() {
   try {
-    const { data } = yield call(axios.get, "/api/webaction/metadata")
+    // const { data } = yield call(axios.get, "/api/webaction/metadata")
+    const { data } = yield call(
+      axios.get,
+      "https://raw.githubusercontent.com/adrw/misk-web/adrw/20190325.WebActionsExampleData/examples/data/demo/webactions.json"
+    )
     const { webActionMetadata } = data
     const metadata = chain(webActionMetadata)
       .map((action: IWebActionAPI) => {
@@ -262,7 +293,6 @@ function* handleMetadata() {
           action.allowedServices && action.allowedServices.length > 0
             ? action.allowedServices.join(", ")
             : emptyAllowedArrayValue
-
         return {
           ...action,
           allFields: JSON.stringify(action),
@@ -271,7 +301,8 @@ function* handleMetadata() {
           authFunctionAnnotations,
           dispatchMechanism: [action.dispatchMechanism],
           function: action.function.split("fun ").pop(),
-          nonAccessOrTypeFunctionAnnotations
+          nonAccessOrTypeFunctionAnnotations,
+          typesMetadata: generateTypesMetadata(action)
         }
       })
       .groupBy(groupByWebActionHash)
