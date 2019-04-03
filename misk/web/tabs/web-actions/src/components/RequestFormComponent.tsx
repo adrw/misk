@@ -27,13 +27,7 @@ import {
   IWebActionInternal,
   TypescriptBaseTypes
 } from "../ducks"
-import {
-  generateKeyTag,
-  IFieldProps,
-  initializeKeyMap,
-  safeArray,
-  addFieldToKeyMap
-} from "./utilities"
+import { generateKeyTag, IFieldProps, safeArray } from "./utilities"
 
 const RequestFieldGroup = styled(Card)`
   margin-bottom: 10px;
@@ -91,6 +85,7 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
   const { name, type } = field
   if (BaseFieldTypes.hasOwnProperty(type)) {
     if (BaseFieldTypes[type] === TypescriptBaseTypes.boolean) {
+      // props.simpleFormInput(`${tag}::Meta${id}`, { name: field.name, id, type })
       return (
         <ControlGroup>
           <Tooltip content={type}>
@@ -124,6 +119,7 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
         </ControlGroup>
       )
     } else if (BaseFieldTypes[type] === TypescriptBaseTypes.number) {
+      // props.simpleFormInput(`${tag}::Meta${id}`, { name: field.name, id, type })
       return (
         <ControlGroup>
           <Tooltip content={type}>
@@ -145,6 +141,7 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
         </ControlGroup>
       )
     } else if (BaseFieldTypes[type] === TypescriptBaseTypes.string) {
+      // props.simpleFormInput(`${tag}::Meta${id}`, { name: field.name, id, type })
       return (
         <ControlGroup>
           <Tooltip content={type}>
@@ -175,29 +172,40 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
       )
     }
   } else if (props.types.hasOwnProperty(type)) {
+    const childrenIds = props.types[type].fields.map(
+      (subField: IFieldTypeMetadata) => ({
+        field: subField,
+        id: parseInt(`${id}${uniqueId()}`)
+      })
+    )
+    // props.simpleFormInput(`${tag}::Meta${id}`, { name: field.name, id, type })
+
     return (
       <div>
         <RepeatableFieldButton id={id} nestPath={nestPath} {...props} />
         <RequestFieldGroup>
           <RequestFormGroup label={`${name} (${type})`}>
-            {props.types[type].fields.map((field: IFieldTypeMetadata) => {
-              return (
-                <div>
-                  <RequestFormFields
-                    {...props}
-                    field={field}
-                    id={parseInt(`${id}${uniqueId()}`)}
-                    nestPath={`${nestPath}${id}/`}
-                    types={props.types}
-                  />
-                </div>
-              )
-            })}
+            {childrenIds.map(
+              (child: { id: number; field: IFieldTypeMetadata }) => {
+                return (
+                  <div>
+                    <RequestFormFields
+                      {...props}
+                      field={child.field}
+                      id={child.id}
+                      nestPath={`${nestPath}${id}/`}
+                      types={props.types}
+                    />
+                  </div>
+                )
+              }
+            )}
           </RequestFormGroup>
         </RequestFieldGroup>
       </div>
     )
   } else {
+    // props.simpleFormInput(`${tag}::Meta${id}`, { name: field.name, id, type })
     return (
       <div>
         <RepeatableFieldButton id={id} nestPath={nestPath} {...props} /> {name}:
@@ -221,22 +229,10 @@ const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
 const RequestFormFields = (props: IFieldProps & IState & IDispatchProps) => {
   const uid = props.id || parseInt(uniqueId())
   const keyTag = generateKeyTag(props)
-  // const ids = safeArray(
-  //   simpleSelect(props.simpleForm, keyTag, "data", simpleType.array) ||
-  //     (props.simpleFormInput(keyTag, OrderedSet([uid]).toJS()) && [uid])
-  // )
-  let ids = simpleSelect(props.simpleForm, keyTag, "data", simpleType.array)
-  if (ids) {
-    ids = safeArray(ids)
-  } else {
-    addFieldToKeyMap({
-      ...props,
-      key: `${uid}`,
-      name: props.field.name
-    })
-    props.simpleFormInput(keyTag, OrderedSet([uid]).toJS())
-    ids = [uid]
-  }
+  const ids = safeArray(
+    simpleSelect(props.simpleForm, keyTag, "data", simpleType.array) ||
+      (props.simpleFormInput(keyTag, OrderedSet([uid]).toJS()) && [uid])
+  )
   return (
     <div>
       {ids.map((id: number) => (
@@ -252,14 +248,20 @@ export const RequestFormComponent = (
   const { requestType, types } = props.action
   if (requestType && types && types[requestType] && types[requestType].fields) {
     const { fields } = types[requestType]
-    initializeKeyMap(props)
+    for (let i = 0; i < fields.length; i++) {
+      props.simpleFormInput(`${props.tag}::Meta${i}`, {
+        index: i,
+        name: fields[i].name,
+        requestType
+      })
+    }
     return (
       <div>
-        {fields.map((field: IFieldTypeMetadata) => (
+        {fields.map((field: IFieldTypeMetadata, index: number) => (
           <RequestFormFields
             {...props}
             field={field}
-            id={0}
+            id={index}
             nestPath={"/"}
             types={types}
           />

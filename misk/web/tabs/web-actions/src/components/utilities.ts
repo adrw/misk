@@ -17,10 +17,10 @@ export interface IFieldProps {
   types: IActionTypes
 }
 
-interface IFieldMapNode {
+export interface IFieldMetadata {
   parent: string
   children: string[]
-  key: string
+  id: string
   name: string
 }
 
@@ -42,8 +42,8 @@ export const initializeKeyMap = (
   }
 }
 
-interface IFieldMap {
-  [key: string]: IFieldMapNode
+export interface IFieldMap {
+  [key: string]: IFieldMetadata
 }
 
 export const addFieldToKeyMap = (
