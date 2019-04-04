@@ -1,7 +1,15 @@
-import { TextArea } from "@blueprintjs/core"
-import { onChangeFnCall } from "@misk/simpleredux"
+import { Button, InputGroup, Pre } from "@blueprintjs/core"
+import { IconNames } from "@blueprintjs/icons"
+import { onChangeFnCall, simpleSelect } from "@misk/simpleredux"
+import { Map } from "immutable"
+import { findIndex } from "lodash"
 import * as React from "react"
-import { IDispatchProps, IState, IWebActionInternal } from "../ducks"
+import {
+  IDispatchProps,
+  IState,
+  ITypesFieldMetadata,
+  IWebActionInternal
+} from "../ducks"
 
 // import {
 //   Button,
@@ -252,36 +260,97 @@ import { IDispatchProps, IState, IWebActionInternal } from "../ducks"
 //   )
 // }
 
-export const RequestFormComponent = (
-  props: { action: IWebActionInternal; tag: string } & IState & IDispatchProps
+const RepeatableFieldButton = (
+  props: {
+    action: IWebActionInternal
+    id: string
+    typesMetadata: Map<string, ITypesFieldMetadata>
+  } & IState &
+    IDispatchProps
 ) => {
-  const { requestType, types } = props.action
-  if (requestType && types && types[requestType] && types[requestType].fields) {
-    // const { fields } = types[requestType]
-    return (
-      <span>building...</span>
-      // <div>
-      //   {fields.map((field: IFieldTypeMetadata) => (
-      //     <RequestFormFields
-      //       {...props}
-      //       field={field}
-      //       id={0}
-      //       nestPath={"/"}
-      //       types={types}
-      //     />
-      //   ))}
-      // </div>
-    )
-  } else {
-    const { tag } = props
-    return (
-      <TextArea
-        fill={true}
-        onChange={onChangeFnCall(props.simpleFormInput, `${tag}::Body`)}
-        placeholder={
-          "Request Body (JSON or Text).\nDrag bottom right corner of text area input to expand."
-        }
+  const { id, action } = props
+  return (
+    <div>
+      <Button
+        icon={IconNames.PLUS}
+        onClick={onChangeFnCall(
+          props.webActionsAdd,
+          id,
+          findIndex(
+            props.webActions.metadata,
+            (iteratedAction: IWebActionInternal) => iteratedAction === action
+          ),
+          props.webActions.metadata
+        )}
       />
-    )
-  }
+      {/* {typesMetadata.get(id).children.size > 1 ? (
+          <Button
+            icon={IconNames.MINUS}
+            onClick={onChangeFnCall(props.webActionsRemove, id)}
+          />
+        ) : (
+          <span />
+        )} */}
+    </div>
+  )
+}
+
+export const RequestFormComponent = (
+  props: {
+    action: IWebActionInternal
+    tag: string
+  } & IState &
+    IDispatchProps
+) => {
+  const { action } = props
+  const { typesMetadata } = action
+  return (
+    <div>
+      <InputGroup
+        onChange={onChangeFnCall(
+          props.simpleFormInput,
+          `${props.tag}::RepeatedForm`
+        )}
+        placeholder={"repeated id"}
+      />
+      <RepeatableFieldButton
+        {...props}
+        id={simpleSelect(
+          props.simpleForm,
+          `${props.tag}::RepeatedForm`,
+          "data"
+        )}
+        typesMetadata={typesMetadata}
+      />
+      <Pre>{JSON.stringify(typesMetadata, null, 2)}</Pre>
+    </div>
+  )
+  // if (requestType && types && types[requestType] && types[requestType].fields) {
+  //   // const { fields } = types[requestType]
+  //   return (
+  //     <Pre>{JSON.stringify(typesMetadata, null, 2)}</Pre>
+  //     // <div>
+  //     //   {fields.map((field: IFieldTypeMetadata) => (
+  //     //     <RequestFormFields
+  //     //       {...props}
+  //     //       field={field}
+  //     //       id={0}
+  //     //       nestPath={"/"}
+  //     //       types={types}
+  //     //     />
+  //     //   ))}
+  //     // </div>
+  //   )
+  // } else {
+  //   const { tag } = props
+  //   return (
+  //     <TextArea
+  //       fill={true}
+  //       onChange={onChangeFnCall(props.simpleFormInput, `${tag}::Body`)}
+  //       placeholder={
+  //         "Request Body (JSON or Text).\nDrag bottom right corner of text area input to expand."
+  //       }
+  //     />
+  //   )
+  // }
 }

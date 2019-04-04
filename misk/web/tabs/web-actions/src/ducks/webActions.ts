@@ -6,7 +6,8 @@ import {
 } from "@misk/simpleredux"
 import axios from "axios"
 import { HTTPMethod } from "http-method-enum"
-import { chain } from "lodash"
+import { fromJS, Map, Set } from "immutable"
+import { chain, get, uniqueId } from "lodash"
 import { all, AllEffect, call, put, takeLatest } from "redux-saga/effects"
 
 export const enum TypescriptBaseTypes {
@@ -93,14 +94,17 @@ export interface IWebActionInternal {
   returnType: string
   requestType: string
   types: IActionTypes
-  typesMetadata: ITypesMetadata
+  typesMetadata: Map<string, ITypesFieldMetadata>
 }
 
 export interface ITypesFieldMetadata {
   parent: string
-  children: string[]
+  children: Set<string>
   id: string
   name: string
+  repeated: boolean
+  kotlinType: KotlinTypes | null
+  typescriptType: TypescriptBaseTypes | null
 }
 
 export interface ITypesMetadata {
@@ -131,7 +135,8 @@ export const WebActionInternalLabel: { [key: string]: string } = {
  * string enum of the defined actions that is used as type enforcement for Reducer and Sagas arguments
  */
 export enum WEBACTIONS {
-  DINOSAUR = "WEBACTIONS_DINOSAUR",
+  ADD_REPEATED_FIELD = "WEBACTIONS_ADD_REPEATED_FIELD",
+  REMOVE_REPEATED_FIELD = "WEBACTIONS_REMOVE_REPEATED_FIELD",
   METADATA = "WEBACTIONS_METADATA",
   SUCCESS = "WEBACTIONS_SUCCESS",
   FAILURE = "WEBACTIONS_FAILURE"
@@ -145,32 +150,52 @@ export enum WEBACTIONS {
 export interface IWebActionsPayload {
   data?: any
   error: any
+  fieldId?: string
   loading: boolean
+  repeatedId?: string
   success: boolean
+  webActionIndex?: number
+  webActionMetadata?: IWebActionInternal[]
 }
 
 export interface IDispatchWebActions {
-  webActionsDinosaur: (
-    data: any,
-    fieldTag: string,
-    formTag: string
-  ) => IAction<WEBACTIONS.DINOSAUR, IWebActionsPayload>
+  webActionsAdd: (
+    repeatedId: string,
+    webActionIndex: number,
+    webActionMetadata: IWebActionInternal[]
+  ) => IAction<WEBACTIONS.ADD_REPEATED_FIELD, IWebActionsPayload>
   webActionsFailure: (
     error: any
   ) => IAction<WEBACTIONS.FAILURE, IWebActionsPayload>
   webActionsMetadata: () => IAction<WEBACTIONS.METADATA, IWebActionsPayload>
+  webActionsRemove: (
+    repeatedId: string,
+    fieldId: string,
+    webActionIndex: number,
+    webActionMetadata: IWebActionInternal[]
+  ) => IAction<WEBACTIONS.REMOVE_REPEATED_FIELD, IWebActionsPayload>
   webActionsSuccess: (
     data: any
   ) => IAction<WEBACTIONS.SUCCESS, IWebActionsPayload>
 }
 
 export const dispatchWebActions: IDispatchWebActions = {
-  webActionsDinosaur: () =>
-    createAction<WEBACTIONS.DINOSAUR, IWebActionsPayload>(WEBACTIONS.DINOSAUR, {
-      error: null,
-      loading: true,
-      success: false
-    }),
+  webActionsAdd: (
+    repeatedId: string,
+    webActionIndex: number,
+    webActionMetadata: IWebActionInternal[]
+  ) =>
+    createAction<WEBACTIONS.ADD_REPEATED_FIELD, IWebActionsPayload>(
+      WEBACTIONS.ADD_REPEATED_FIELD,
+      {
+        error: null,
+        loading: true,
+        repeatedId,
+        success: false,
+        webActionIndex,
+        webActionMetadata
+      }
+    ),
   webActionsFailure: (error: any) =>
     createAction<WEBACTIONS.FAILURE, IWebActionsPayload>(WEBACTIONS.FAILURE, {
       ...error,
@@ -183,6 +208,24 @@ export const dispatchWebActions: IDispatchWebActions = {
       loading: true,
       success: false
     }),
+  webActionsRemove: (
+    repeatedId: string,
+    fieldId: string,
+    webActionIndex: number,
+    webActionMetadata: IWebActionInternal[]
+  ) =>
+    createAction<WEBACTIONS.REMOVE_REPEATED_FIELD, IWebActionsPayload>(
+      WEBACTIONS.REMOVE_REPEATED_FIELD,
+      {
+        error: null,
+        fieldId,
+        loading: true,
+        repeatedId,
+        success: false,
+        webActionIndex,
+        webActionMetadata
+      }
+    ),
   webActionsSuccess: (data: any) =>
     createAction<WEBACTIONS.SUCCESS, IWebActionsPayload>(WEBACTIONS.SUCCESS, {
       ...data,
@@ -205,13 +248,113 @@ export const dispatchWebActions: IDispatchWebActions = {
  *  function to prevent unhelpful errors. Ie. a failed request error is
  *  returned but it actually was just a parsing error within the try/catch.
  */
-function* handleDinosaur(action: IAction<WEBACTIONS, IWebActionsPayload>) {
+
+function* handleAddRepeatedField(
+  action: IAction<WEBACTIONS, IWebActionsPayload>
+) {
   try {
-    const { data } = yield call(
-      axios.get,
-      "https://jsonplaceholder.typicode.com/posts/"
+    const { repeatedId, webActionIndex, webActionMetadata } = action.payload
+    console.log("hapf1", repeatedId, webActionIndex, webActionMetadata)
+
+    const { types, typesMetadata } = webActionMetadata[webActionIndex]
+    console.log("hapf2", types, typesMetadata)
+
+    const repeatedMetadata = fromJS(typesMetadata).get(repeatedId)
+    console.log("hapf3.1", repeatedMetadata.toJS())
+
+    const repeatedChildId = uniqueId()
+    console.log("hapf3.2", repeatedMetadata.toJS(), repeatedChildId)
+
+    const newTypesMetadata = fromJS(typesMetadata)
+      .setIn(
+        [repeatedId, "children"],
+        repeatedMetadata.children.add(repeatedChildId)
+      )
+      .mergeDeep(
+        generateFieldTypesMetadata(
+          {
+            name: repeatedMetadata.name,
+            repeated: false,
+            type: repeatedMetadata.kotlinType
+          },
+          types,
+          typesMetadata,
+          repeatedChildId,
+          repeatedId
+        )
+      )
+    console.log("hapf4", newTypesMetadata.toJS())
+    const newWebactionMetadata = webActionMetadata
+    const newWebAction = {
+      ...newWebactionMetadata[webActionIndex],
+      typesMetadata: newTypesMetadata
+    }
+    newWebactionMetadata[webActionIndex] = newWebAction
+    console.log("hapf5", newWebactionMetadata)
+    yield put(
+      dispatchWebActions.webActionsSuccess({
+        metadata: newWebactionMetadata
+      })
     )
-    yield put(dispatchWebActions.webActionsSuccess({ data }))
+  } catch (e) {
+    yield put(dispatchWebActions.webActionsFailure({ error: { ...e } }))
+  }
+}
+
+// const recursivelyDelete = (id: string, typesMetadata: Map<string, ITypesFieldMetadata>) => {
+// let newTypesMetadata = typesMetadata
+// const danglingChildren = typesMetadata.get(id).children
+//   for (const i in danglingChildren) {
+//    newTypesMetadata = newTypesMetadata.mergeDeep(recursivelyDelete(danglingChildren[i], newTypesMetadata))
+// }
+// return newTypesMetadata
+// }
+
+// return recursivelyDelete(fieldId, typesMetadata).setIn([repeatedId, "children"], typesMetadata.get(repeatedId).children.delete(fieldId))
+
+function* handleRemoveRepeatedField(
+  action: IAction<WEBACTIONS, IWebActionsPayload>
+) {
+  try {
+    const {
+      repeatedId,
+      fieldId,
+      webActionIndex: webAction,
+      webActionMetadata
+    } = action.payload
+    const { typesMetadata } = webActionMetadata[webAction]
+    const repeatedMetadata = typesMetadata.get(repeatedId)
+    const danglingChildren = typesMetadata.getIn([fieldId, "children"])
+    let newTypesMetadata = typesMetadata
+      .delete(fieldId)
+      .setIn(
+        repeatedMetadata.id,
+        buildTypeFieldMetadata(
+          repeatedMetadata.children.delete(fieldId),
+          repeatedMetadata.id,
+          repeatedMetadata.name,
+          repeatedMetadata.repeated,
+          repeatedMetadata.parent,
+          repeatedMetadata.kotlinType,
+          repeatedMetadata.typescriptType
+        )
+      )
+    for (const i in danglingChildren) {
+      if (danglingChildren[i]) {
+        newTypesMetadata = newTypesMetadata.delete(danglingChildren[i])
+      }
+    }
+    const newWebactionMetadata = webActionMetadata
+    const newWebAction = {
+      ...newWebactionMetadata[webAction],
+      typesMetadata: newTypesMetadata
+    }
+    newWebactionMetadata[webAction] = newWebAction
+    yield put(
+      dispatchWebActions.webActionsSuccess({
+        metadata: newWebactionMetadata
+      })
+    )
   } catch (e) {
     yield put(dispatchWebActions.webActionsFailure({ error: { ...e } }))
   }
@@ -236,18 +379,173 @@ const groupByWebActionHash = (
   action.responseMediaType +
   action.returnType
 
-// const generateFieldTypesMetadata = () => {}
+const buildTypeFieldMetadata = (
+  children: Set<string> = Set(),
+  id: string = "",
+  name: string = "",
+  repeated: boolean = false,
+  parent: string = "0",
+  kotlinType: KotlinTypes | null = null,
+  typescriptType: TypescriptBaseTypes | null = null
+): ITypesFieldMetadata => ({
+  children,
+  id,
+  kotlinType,
+  name,
+  parent,
+  repeated,
+  typescriptType
+})
 
-const generateTypesMetadata = (action: IWebActionAPI) => {
-  const baseMetadata: ITypesMetadata = {
-    root: { parent: "", children: [], id: "", name: "" }
-  }
-  if (action.types) {
-    console.log(baseMetadata, action.types)
-    
-    return baseMetadata
+const generateFieldTypesMetadata = (
+  field: IFieldTypeMetadata,
+  types: IActionTypes,
+  typesMetadata: Map<string, ITypesFieldMetadata>,
+  id: string = uniqueId(),
+  parent: string = ""
+): Map<string, ITypesFieldMetadata> => {
+  const { name, repeated, type } = field
+  if (repeated) {
+    const repeatedChildId = uniqueId()
+    return typesMetadata
+      .set(
+        id,
+        buildTypeFieldMetadata(
+          Set().add(repeatedChildId),
+          id,
+          name,
+          true,
+          parent
+        )
+      )
+      .mergeDeep(
+        generateFieldTypesMetadata(
+          { ...field, repeated: false },
+          types,
+          typesMetadata,
+          repeatedChildId,
+          id
+        )
+      )
+  } else if (BaseFieldTypes.hasOwnProperty(type)) {
+    if (
+      BaseFieldTypes[type] === TypescriptBaseTypes.boolean ||
+      BaseFieldTypes[type] === TypescriptBaseTypes.number ||
+      BaseFieldTypes[type] === TypescriptBaseTypes.string
+    ) {
+      return typesMetadata.mergeDeep(
+        Map<string, ITypesFieldMetadata>().set(
+          id,
+          buildTypeFieldMetadata(
+            Set(),
+            id,
+            name,
+            repeated,
+            parent,
+            type,
+            BaseFieldTypes[type]
+          )
+        )
+      )
+    } else {
+      console.log(
+        `Valid Base Field Type ${type} has no handler for the corresponding Tyepscript Type ${
+          BaseFieldTypes[type]
+        }`
+      )
+      return typesMetadata
+    }
+  } else if (types.hasOwnProperty(type)) {
+    const fields = types[type].fields
+    let childIds = Set()
+    let subMap = typesMetadata
+    for (const subField in fields) {
+      if (fields.hasOwnProperty(subField)) {
+        const childId = uniqueId()
+        childIds = childIds.add(childId)
+        subMap = subMap.mergeDeep(
+          generateFieldTypesMetadata(
+            fields[subField],
+            types,
+            typesMetadata,
+            childId,
+            id
+          )
+        )
+      }
+    }
+    return typesMetadata
+      .set(
+        id,
+        buildTypeFieldMetadata(
+          childIds,
+          id,
+          name,
+          repeated,
+          parent,
+          type,
+          BaseFieldTypes[type]
+        )
+      )
+      .mergeDeep(subMap)
   } else {
-    return baseMetadata
+    return typesMetadata.set(
+      id,
+      buildTypeFieldMetadata(
+        Set(),
+        id,
+        name,
+        repeated,
+        parent,
+        type,
+        BaseFieldTypes[type]
+      )
+    )
+  }
+}
+
+const generateTypesMetadata = (
+  action: IWebActionAPI
+): Map<string, ITypesFieldMetadata> => {
+  const { requestType, types } = action
+  let typesMetadata = Map<string, ITypesFieldMetadata>().set(
+    "0",
+    buildTypeFieldMetadata()
+  )
+  if (requestType && types && get(types, requestType)) {
+    const { fields } = get(types, requestType)
+    for (const field in fields) {
+      if (fields.hasOwnProperty(field)) {
+        const id = uniqueId()
+        typesMetadata = typesMetadata.mergeDeep(
+          generateFieldTypesMetadata(
+            fields[field],
+            types,
+            typesMetadata,
+            id,
+            "0"
+          )
+        )
+        typesMetadata = typesMetadata.setIn(
+          ["0", "children"],
+          typesMetadata.getIn(["0", "children"]).add(id)
+        )
+      }
+    }
+    return typesMetadata
+  } else {
+    return Map<string, ITypesFieldMetadata>().set(
+      "0",
+      buildTypeFieldMetadata(
+        Set(),
+        uniqueId(),
+        "",
+        false,
+        "",
+        KotlinTypes.String,
+        TypescriptBaseTypes.string
+      )
+    )
   }
 }
 
@@ -329,7 +627,8 @@ function* handleMetadata() {
 
 export function* watchWebActionsSagas(): IterableIterator<AllEffect> {
   yield all([
-    takeLatest(WEBACTIONS.DINOSAUR, handleDinosaur),
+    takeLatest(WEBACTIONS.ADD_REPEATED_FIELD, handleAddRepeatedField),
+    takeLatest(WEBACTIONS.REMOVE_REPEATED_FIELD, handleRemoveRepeatedField),
     takeLatest(WEBACTIONS.METADATA, handleMetadata)
   ])
 }
@@ -349,7 +648,8 @@ export const WebActionsReducer = (
   action: IAction<WEBACTIONS, {}>
 ) => {
   switch (action.type) {
-    case WEBACTIONS.DINOSAUR:
+    case WEBACTIONS.ADD_REPEATED_FIELD:
+    case WEBACTIONS.REMOVE_REPEATED_FIELD:
     case WEBACTIONS.FAILURE:
     case WEBACTIONS.METADATA:
     case WEBACTIONS.SUCCESS:
@@ -366,7 +666,7 @@ export const WebActionsReducer = (
  * Duck state is attached at the root level of global state
  */
 export interface IWebActionsState extends IRootState {
-  metadata: IWebActionInternal
+  metadata: IWebActionInternal[]
   [key: string]: any
 }
 
