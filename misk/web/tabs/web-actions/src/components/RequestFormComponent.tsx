@@ -260,6 +260,138 @@ import {
 //   )
 // }
 
+// const RequestFormField = (props: IFieldProps & IState & IDispatchProps) => {
+//   const { field, id, nestPath, tag } = props
+//   const { name, type } = field
+//   if (BaseFieldTypes.hasOwnProperty(type)) {
+//     if (BaseFieldTypes[type] === TypescriptBaseTypes.boolean) {
+//       return (
+//         <ControlGroup>
+//           <Tooltip content={type}>
+//             <Button>{name}</Button>
+//           </Tooltip>
+//           <RepeatableFieldButton {...props} id={id} nestPath={nestPath} />
+//           <Button
+//             intent={
+//               simpleSelect(
+//                 props.simpleForm,
+//                 `${tag}::${nestPath}${id}::Data`,
+//                 "data",
+//                 simpleType.boolean
+//               )
+//                 ? Intent.PRIMARY
+//                 : Intent.WARNING
+//             }
+//             onClick={onChangeToggleFnCall(
+//               props.simpleFormToggle,
+//               `${tag}::${nestPath}${id}::Data`,
+//               props.simpleForm
+//             )}
+//           >
+//             {simpleSelect(
+//               props.simpleForm,
+//               `${tag}::${nestPath}${id}::Data`,
+//               "data",
+//               simpleType.boolean
+//             ).toString()}
+//           </Button>
+//         </ControlGroup>
+//       )
+//     } else if (BaseFieldTypes[type] === TypescriptBaseTypes.number) {
+//       return (
+//         <ControlGroup>
+//           <Tooltip content={type}>
+//             <Button>{name}</Button>
+//           </Tooltip>
+//           <RepeatableFieldButton {...props} id={id} nestPath={nestPath} />
+//           <InputGroup
+//             onChange={onChangeFnCall(
+//               props.simpleFormInput,
+//               `${tag}::${nestPath}${id}::Data`
+//             )}
+//             placeholder={type}
+//             value={simpleSelect(
+//               props.simpleForm,
+//               `${tag}::${nestPath}${id}::Data`,
+//               "data"
+//             )}
+//           />
+//         </ControlGroup>
+//       )
+//     } else if (BaseFieldTypes[type] === TypescriptBaseTypes.string) {
+//       return (
+//         <ControlGroup>
+//           <Tooltip content={type}>
+//             <Button>{name}</Button>
+//           </Tooltip>
+//           <RepeatableFieldButton {...props} id={id} nestPath={nestPath} />
+//           <TextArea
+//             fill={true}
+//             onChange={onChangeFnCall(
+//               props.simpleFormInput,
+//               `${tag}::${nestPath}${id}::Data`
+//             )}
+//             placeholder={`${type}\nDrag bottom right corner of text area input to expand.`}
+//             value={simpleSelect(
+//               props.simpleForm,
+//               `${tag}::${nestPath}${id}::Data`,
+//               "data"
+//             )}
+//           />
+//         </ControlGroup>
+//       )
+//     } else {
+//       return (
+//         <span>
+//           Valid Base Field Type {type} has no handler for the corresponding
+//           Tyepscript Type {BaseFieldTypes[type]}
+//         </span>
+//       )
+//     }
+//   } else if (props.types.hasOwnProperty(type)) {
+//     return (
+//       <div>
+//         <RepeatableFieldButton id={id} nestPath={nestPath} {...props} />
+//         <RequestFieldGroup>
+//           <RequestFormGroup label={`${name} (${type})`}>
+//             {props.types[type].fields.map((field: IFieldTypeMetadata) => {
+//               return (
+//                 <div>
+//                   <RequestFormFields
+//                     {...props}
+//                     field={field}
+//                     id={parseInt(`${id}${uniqueId()}`)}
+//                     nestPath={`${nestPath}${id}/`}
+//                     types={props.types}
+//                   />
+//                 </div>
+//               )
+//             })}
+//           </RequestFormGroup>
+//         </RequestFieldGroup>
+//       </div>
+//     )
+//   } else {
+//     return (
+//       <div>
+//         <RepeatableFieldButton id={id} nestPath={nestPath} {...props} /> {name}:
+//         <RequestFormGroup label={`${name}:${JSON.stringify(type)}:${id}`}>
+//           <TextArea
+//             fill={true}
+//             onChange={onChangeFnCall(
+//               props.simpleFormInput,
+//               `${tag}::${nestPath}${id}::Data`
+//             )}
+//             placeholder={
+//               "Unparseable type. (JSON or Text).\nDrag bottom right corner of text area input to expand."
+//             }
+//           />
+//         </RequestFormGroup>
+//       </div>
+//     )
+//   }
+// }
+
 const RepeatableFieldButton = (
   props: {
     action: IWebActionInternal
@@ -323,6 +455,7 @@ export const RequestFormComponent = (
         typesMetadata={typesMetadata}
       />
       <Pre>{JSON.stringify(typesMetadata, null, 2)}</Pre>
+
     </div>
   )
   // if (requestType && types && types[requestType] && types[requestType].fields) {

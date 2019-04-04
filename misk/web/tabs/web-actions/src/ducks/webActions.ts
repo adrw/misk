@@ -254,46 +254,44 @@ function* handleAddRepeatedField(
 ) {
   try {
     const { repeatedId, webActionIndex, webActionMetadata } = action.payload
-    console.log("hapf1", repeatedId, webActionIndex, webActionMetadata)
-
     const { types, typesMetadata } = webActionMetadata[webActionIndex]
-    console.log("hapf2", types, typesMetadata)
-
-    const repeatedMetadata = fromJS(typesMetadata).get(repeatedId)
-    console.log("hapf3.1", repeatedMetadata.toJS())
-
+    let newTypesMetadata = fromJS(typesMetadata)
+    const repeatedMetadata = newTypesMetadata.get(repeatedId)
     const repeatedChildId = uniqueId()
-    console.log("hapf3.2", repeatedMetadata.toJS(), repeatedChildId)
-
-    const newTypesMetadata = fromJS(typesMetadata)
+    newTypesMetadata = newTypesMetadata
       .setIn(
         [repeatedId, "children"],
-        repeatedMetadata.children.add(repeatedChildId)
+        repeatedMetadata
+          .get("children")
+          .toSet()
+          .add(repeatedChildId)
       )
       .mergeDeep(
         generateFieldTypesMetadata(
           {
-            name: repeatedMetadata.name,
+            name: repeatedMetadata.get("name"),
             repeated: false,
-            type: repeatedMetadata.kotlinType
+            type: repeatedMetadata.get("kotlinType")
           },
           types,
-          typesMetadata,
+          newTypesMetadata,
           repeatedChildId,
           repeatedId
         )
       )
-    console.log("hapf4", newTypesMetadata.toJS())
-    const newWebactionMetadata = webActionMetadata
+      .map((metadata: any) =>
+        fromJS(metadata)
+          .toMap()
+          .update("children", (c: any) => c.toSet())
+      )
     const newWebAction = {
-      ...newWebactionMetadata[webActionIndex],
+      ...webActionMetadata[webActionIndex],
       typesMetadata: newTypesMetadata
     }
-    newWebactionMetadata[webActionIndex] = newWebAction
-    console.log("hapf5", newWebactionMetadata)
+    webActionMetadata[webActionIndex] = newWebAction
     yield put(
       dispatchWebActions.webActionsSuccess({
-        metadata: newWebactionMetadata
+        metadata: webActionMetadata
       })
     )
   } catch (e) {
@@ -415,7 +413,8 @@ const generateFieldTypesMetadata = (
           id,
           name,
           true,
-          parent
+          parent,
+          type
         )
       )
       .mergeDeep(
