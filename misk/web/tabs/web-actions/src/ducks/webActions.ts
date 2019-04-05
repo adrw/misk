@@ -94,7 +94,7 @@ export interface IWebActionInternal {
   returnType: string
   requestType: string
   types: IActionTypes
-  typesMetadata: Map<string, ITypesFieldMetadata>
+  typesMetadata: { [key: string]: ITypesFieldMetadata }
 }
 
 export interface ITypesFieldMetadata {
@@ -155,14 +155,14 @@ export interface IWebActionsPayload {
   repeatedId?: string
   success: boolean
   webActionIndex?: number
-  webActionMetadata?: IWebActionInternal[]
+  webActionMetadata?: any
 }
 
 export interface IDispatchWebActions {
   webActionsAdd: (
     repeatedId: string,
     webActionIndex: number,
-    webActionMetadata: IWebActionInternal[]
+    oldState: IWebActionsState
   ) => IAction<WEBACTIONS.ADD_REPEATED_FIELD, IWebActionsPayload>
   webActionsFailure: (
     error: any
@@ -172,7 +172,7 @@ export interface IDispatchWebActions {
     repeatedId: string,
     fieldId: string,
     webActionIndex: number,
-    webActionMetadata: IWebActionInternal[]
+    oldState: IWebActionsState
   ) => IAction<WEBACTIONS.REMOVE_REPEATED_FIELD, IWebActionsPayload>
   webActionsSuccess: (
     data: any
@@ -183,7 +183,7 @@ export const dispatchWebActions: IDispatchWebActions = {
   webActionsAdd: (
     repeatedId: string,
     webActionIndex: number,
-    webActionMetadata: IWebActionInternal[]
+    oldState: IWebActionsState
   ) =>
     createAction<WEBACTIONS.ADD_REPEATED_FIELD, IWebActionsPayload>(
       WEBACTIONS.ADD_REPEATED_FIELD,
@@ -193,7 +193,7 @@ export const dispatchWebActions: IDispatchWebActions = {
         repeatedId,
         success: false,
         webActionIndex,
-        webActionMetadata
+        webActionMetadata: oldState.metadata
       }
     ),
   webActionsFailure: (error: any) =>
@@ -212,7 +212,7 @@ export const dispatchWebActions: IDispatchWebActions = {
     repeatedId: string,
     fieldId: string,
     webActionIndex: number,
-    webActionMetadata: IWebActionInternal[]
+    oldState: IWebActionsState
   ) =>
     createAction<WEBACTIONS.REMOVE_REPEATED_FIELD, IWebActionsPayload>(
       WEBACTIONS.REMOVE_REPEATED_FIELD,
@@ -223,7 +223,7 @@ export const dispatchWebActions: IDispatchWebActions = {
         repeatedId,
         success: false,
         webActionIndex,
-        webActionMetadata
+        webActionMetadata: oldState.metadata
       }
     ),
   webActionsSuccess: (data: any) =>
@@ -509,7 +509,7 @@ const generateTypesMetadata = (
   const { requestType, types } = action
   let typesMetadata = Map<string, ITypesFieldMetadata>().set(
     "0",
-    buildTypeFieldMetadata()
+    buildTypeFieldMetadata(Set(), "0")
   )
   if (requestType && types && get(types, requestType)) {
     const { fields } = get(types, requestType)
@@ -617,7 +617,7 @@ function* handleMetadata() {
       .sortBy(["name", "pathPattern"])
       .value()
     // TODO(adrw) build index of keyspace for filterable fields
-
+    console.log("webact2", metadata)
     yield put(dispatchWebActions.webActionsSuccess({ metadata }))
   } catch (e) {
     yield put(dispatchWebActions.webActionsFailure({ error: { ...e } }))

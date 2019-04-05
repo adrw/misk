@@ -24,7 +24,6 @@ import { all, AllEffect, fork } from "redux-saga/effects"
 import {
   dispatchWebActions,
   IDispatchWebActions,
-  IWebActionsImmutableState,
   IWebActionsState,
   watchWebActionsSagas,
   WebActionsReducer
@@ -59,10 +58,6 @@ export const rootDispatcher: IDispatchProps = {
  * State Selectors
  */
 export const rootSelectors = (state: IState) => ({
-  webActions: simpleRootSelector<IState, IWebActionsImmutableState>(
-    "webActions",
-    state
-  ),
   simpleForm: simpleRootSelector<IState, ISimpleFormImmutableState>(
     "simpleForm",
     state
@@ -70,7 +65,8 @@ export const rootSelectors = (state: IState) => ({
   simpleNetwork: simpleRootSelector<IState, ISimpleNetworkImmutableState>(
     "simpleNetwork",
     state
-  )
+  ),
+  webActions: state.webActions
 })
 
 /**
@@ -78,10 +74,10 @@ export const rootSelectors = (state: IState) => ({
  */
 export const rootReducer = (history: History): Reducer<any, AnyAction> =>
   combineReducers({
-    webActions: WebActionsReducer,
     router: connectRouter(history),
     simpleForm: SimpleFormReducer,
-    simpleNetwork: SimpleNetworkReducer
+    simpleNetwork: SimpleNetworkReducer,
+    webActions: WebActionsReducer
   })
 
 /**

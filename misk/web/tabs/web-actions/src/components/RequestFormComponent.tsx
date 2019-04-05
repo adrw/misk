@@ -16,7 +16,6 @@ import {
   simpleSelect,
   simpleType
 } from "@misk/simpleredux"
-import { fromJS, Map } from "immutable"
 import findIndex from "lodash/findIndex"
 import * as React from "react"
 import styled from "styled-components"
@@ -281,15 +280,12 @@ const RepeatableFieldButton = (
   props: {
     action: IWebActionInternal
     id: string
-    typesMetadata: Map<string, ITypesFieldMetadata>
+    typesMetadata: { [key: string]: ITypesFieldMetadata }
   } & IState &
     IDispatchProps
 ) => {
   const { action, id, typesMetadata } = props
-  const metadata = fromJS(typesMetadata)
-    .get(id)
-    .toMap()
-    .toJS()
+  const metadata = typesMetadata[id]
   if (metadata.repeated) {
     return (
       <div>
@@ -299,10 +295,11 @@ const RepeatableFieldButton = (
             props.webActionsAdd,
             id,
             findIndex(
-              props.webActions.metadata,
-              (iteratedAction: IWebActionInternal) => iteratedAction === action
+              props.webActions.toJS().metadata,
+              (iteratedAction: IWebActionInternal) =>
+                iteratedAction.allFields === action.allFields
             ),
-            props.webActions.metadata
+            props.webActions
           )}
         />
         {/* {typesMetadata.get(id).children.size > 1 ? (
@@ -325,15 +322,13 @@ const RequestFormFieldBuilder = (
     action: IWebActionInternal
     id: string
     tag: string
-    typesMetadata: Map<string, ITypesFieldMetadata>
+    typesMetadata: { [key: string]: ITypesFieldMetadata }
   } & IState &
     IDispatchProps
 ) => {
   const { id, tag, typesMetadata } = props
-  const metadata = fromJS(typesMetadata)
-    .get(id)
-    .toMap()
-    .toJS()
+  console.log(typesMetadata)
+  const metadata = typesMetadata[id]
   console.log(metadata)
   const { children, kotlinType, name, repeated, typescriptType } = metadata
   console.log(kotlinType, repeated, typescriptType)
@@ -440,6 +435,15 @@ export const RequestFormComponent = (
 ) => {
   const { action } = props
   const { typesMetadata } = action
+  const a = props.webActions
+  const b = props.webActions.get("metadata")
+  const c = props.webActions.get("metadata")
+  const d = props.webActions
+    .get("metadata")
+    .filter(
+      (metadata: any) => metadata.typesMetadata.get("0").children.length > 0
+    )
+  console.log(typesMetadata, a, b, c, d)
   return (
     <div>
       <InputGroup

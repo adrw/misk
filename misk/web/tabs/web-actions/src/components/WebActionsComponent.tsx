@@ -171,7 +171,7 @@ const WebAction = (
     <Card>
       <Header>
         {props.action.dispatchMechanism.map(m => (
-          <MethodTag method={m} />
+          <MethodTag key={m} method={m} />
         ))}
         <FloatLeft>
           <H3>{props.action.name}</H3>
@@ -181,7 +181,7 @@ const WebAction = (
         </FloatLeft>
       </Header>
       {props.action.nonAccessOrTypeFunctionAnnotations.map(a => (
-        <H5>{a}</H5>
+        <H5 key={a}>{a}</H5>
       ))}
       <FlexContainer>
         <Column>
@@ -222,7 +222,7 @@ const WebAction = (
               tag={`${props.tag}::ApplicationInterceptors`}
             >
               {props.action.applicationInterceptors.map(i => (
-                <MenuItem text={<Tooltip content={i}>{i}</Tooltip>} />
+                <MenuItem key={i} text={<Tooltip content={i}>{i}</Tooltip>} />
               ))}
             </MetadataCollapse>
             <MetadataCollapse
@@ -232,7 +232,7 @@ const WebAction = (
               tag={`${props.tag}::NetworkInterceptors`}
             >
               {props.action.networkInterceptors.map(i => (
-                <MenuItem text={<Tooltip content={i}>{i}</Tooltip>} />
+                <MenuItem key={i} text={<Tooltip content={i}>{i}</Tooltip>} />
               ))}
             </MetadataCollapse>
             <MetadataCollapse
@@ -324,7 +324,7 @@ const SkeletonWebActions = () => (
 export const WebActionsComponent = (
   props: IState & IDispatchProps & { tag: string }
 ) => {
-  const metadata = simpleSelect(props.webActions, "metadata")
+  const metadata = props.webActions.toJS().metadata || []
   const filterTag = `${props.tag}::Filter`
   if (metadata.length > 0) {
     const filterKey =
