@@ -105,9 +105,9 @@ const repeatableFieldButtons = (
         icon={dirtyInput ? IconNames.REMOVE : IconNames.ADD_TO_ARTIFACT}
         onClick={(event: any) => {
           props.simpleFormInput(`${tag}::ButtonRequestBody`, true)
-          ;(dirtyInput
-            ? props.webActionsUnsetDirtyInput
-            : props.webActionsSetDirtyInput)(id, action, props.webActionsRaw)
+            ; (dirtyInput
+              ? props.webActionsUnsetDirtyInput
+              : props.webActionsSetDirtyInput)(id, action, props.webActionsRaw)
         }}
       />
     </Tooltip>
@@ -174,7 +174,7 @@ const EditRawInput = (
         )}
         fill={true}
         growVertically={true}
-        onBlur={onChangeFnCall(props.simpleFormInput, `${tag}::${padId(id)}`)}
+        onChange={onChangeFnCall(props.simpleFormInput, `${tag}::${padId(id)}`)}
       />
     )
   } else {
@@ -283,7 +283,7 @@ const UnconnectedRequestFormFieldBuilderContainer = (
                   "data"
                 )}
                 onClick={onChangeFnCall(clickDirtyInputFns(props))}
-                onBlur={onChangeFnCall(
+                onChange={onChangeFnCall(
                   props.simpleFormInput,
                   `${tag}::${padId(id)}`
                 )}
@@ -309,7 +309,7 @@ const UnconnectedRequestFormFieldBuilderContainer = (
                   "data"
                 )}
                 onClick={onChangeFnCall(clickDirtyInputFns(props))}
-                onBlur={onChangeFnCall(
+                onChange={onChangeFnCall(
                   props.simpleFormInput,
                   `${tag}::${padId(id)}`
                 )}
@@ -425,22 +425,22 @@ const UnconnectedRequestFormFieldBuilderContainer = (
                   )}
                 </Card>
               ) : (
-                <Card css={css(cssCard)}>
-                  <TextArea
-                    css={css(cssWrapTextArea)}
-                    fill={true}
-                    growVertically={true}
-                    onBlur={onClickFnCall(clickDirtyInputFns(props))}
-                    onChange={onChangeFnCall(
-                      props.simpleFormInput,
-                      `${tag}::RawRequestBody`
-                    )}
-                    placeholder={
-                      "Raw request body. This input will return a string or JSON."
-                    }
-                  />
-                </Card>
-              )}
+                  <Card css={css(cssCard)}>
+                    <TextArea
+                      css={css(cssWrapTextArea)}
+                      fill={true}
+                      growVertically={true}
+                      onBlur={onClickFnCall(clickDirtyInputFns(props))}
+                      onChange={onChangeFnCall(
+                        props.simpleFormInput,
+                        `${tag}::RawRequestBody`
+                      )}
+                      placeholder={
+                        "Raw request body. This input will return a string or JSON."
+                      }
+                    />
+                  </Card>
+                )}
             </div>
           )
         } else {
@@ -464,7 +464,7 @@ const UnconnectedRequestFormFieldBuilderContainer = (
               fill={true}
               growVertically={true}
               onClick={onClickFnCall(clickDirtyInputFns(props))}
-              onBlur={onChangeFnCall(
+              onChange={onChangeFnCall(
                 props.simpleFormInput,
                 `${tag}::${padId(id)}`
               )}

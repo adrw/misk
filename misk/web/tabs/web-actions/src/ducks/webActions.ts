@@ -21,7 +21,7 @@ import {
   size,
   uniqueId
 } from "lodash"
-import { all, call, put, takeLatest } from "redux-saga/effects"
+import { all, call, put, takeLatest, throttle } from "redux-saga/effects"
 
 export const enum TypescriptBaseTypes {
   "any" = "any",
@@ -911,12 +911,26 @@ function* handleMetadata() {
   }
 }
 
+function* watchAddRepeatedField() {
+  yield throttle(3000, WEBACTIONS.ADD_REPEATED_FIELD, handleAddRepeatedField)
+}
+function* watchDirtyInputField() {
+  yield throttle(3000, WEBACTIONS.SET_DIRTY_INPUT_FIELD, handleDirtyInputField)
+}
+function* watchRemoveRepeatedField() {
+  yield throttle(
+    3000,
+    WEBACTIONS.REMOVE_REPEATED_FIELD,
+    handleRemoveRepeatedField
+  )
+}
+
 export function* watchWebActionsSagas(): SimpleReduxSaga {
   yield all([
-    takeLatest(WEBACTIONS.ADD_REPEATED_FIELD, handleAddRepeatedField),
-    takeLatest(WEBACTIONS.SET_DIRTY_INPUT_FIELD, handleDirtyInputField),
-    takeLatest(WEBACTIONS.UNSET_DIRTY_INPUT_FIELD, handleDirtyInputField),
-    takeLatest(WEBACTIONS.REMOVE_REPEATED_FIELD, handleRemoveRepeatedField),
+    takeLatest(WEBACTIONS.ADD_REPEATED_FIELD, watchAddRepeatedField),
+    takeLatest(WEBACTIONS.SET_DIRTY_INPUT_FIELD, watchDirtyInputField),
+    takeLatest(WEBACTIONS.UNSET_DIRTY_INPUT_FIELD, watchDirtyInputField),
+    takeLatest(WEBACTIONS.REMOVE_REPEATED_FIELD, watchRemoveRepeatedField),
     takeLatest(WEBACTIONS.METADATA, handleMetadata)
   ])
 }
