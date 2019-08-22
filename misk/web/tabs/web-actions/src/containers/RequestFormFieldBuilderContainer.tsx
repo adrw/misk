@@ -9,7 +9,8 @@ import {
   Intent,
   Label,
   TextArea,
-  Tooltip
+  Tooltip,
+  Callout
 } from "@blueprintjs/core"
 import { IconNames } from "@blueprintjs/icons"
 import { css, jsx } from "@emotion/core"
@@ -205,6 +206,13 @@ const clickDirtyInputFns = (
   props.simpleFormInput(`${tag}::ButtonRequestBody`, true)
 }
 
+const cssScrollLongForms = css`
+  @media (min-width: 768px) {
+    max-height: 700px;
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+  }
+`
 const UnconnectedRequestFormFieldBuilderContainer = (
   props: {
     action: IWebActionInternal
@@ -419,7 +427,8 @@ const UnconnectedRequestFormFieldBuilderContainer = (
                 />
               </ControlGroup>
               {whichFormData === "FORM" ? (
-                <Card css={css(cssCard)}>
+                <Card css={css(cssCard, cssScrollLongForms)}>
+                  <Callout>{"Long forms scroll below"}</Callout>
                   {idChildren.map((child: string) =>
                     fieldGroup(child, serverType)
                   )}
