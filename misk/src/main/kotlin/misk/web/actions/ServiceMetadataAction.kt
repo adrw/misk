@@ -33,13 +33,21 @@ class ServiceMetadataAction @Inject constructor(
  * https://github.com/google/guice/wiki/FrequentlyAskedQuestions#how-can-i-inject-optional-parameters-into-a-constructor
  */
 @Singleton
-class OptionalBinder @Inject constructor(@AppName val appName: String) {
+class OptionalBinder @Inject constructor(@AppName val appName: String, serviceMetadataNavbarItems: List<ServiceMetadataNavbarItem>) {
   @com.google.inject.Inject(optional = true)
-  var serviceMetadata: ServiceMetadata = ServiceMetadata(appName, Environment.fromEnvironmentVariable(), "/_admin/")
+  var serviceMetadata: ServiceMetadata =
+    ServiceMetadata(appName, Environment.fromEnvironmentVariable(), "/_admin/",
+      serviceMetadataNavbarItems.sortedBy { it.order }.map { it.item })
 }
 
 data class ServiceMetadata(
   val app_name: String,
   val environment: Environment,
-  val admin_dashboard_url: String
+  val admin_dashboard_url: String,
+  val navbar_items: List<String>
+)
+
+data class ServiceMetadataNavbarItem(
+  val item: String,
+  val order: Int
 )
