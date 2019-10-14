@@ -7,7 +7,6 @@ import misk.moshi.adapter
 import misk.security.authz.FakeCallerAuthenticator
 import misk.testing.MiskTest
 import misk.testing.MiskTestModule
-import misk.web.DashboardTab
 import misk.web.jetty.JettyService
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -29,7 +28,7 @@ class DashboardMetadataActionTest {
 
   @Test fun customCapabilityAccess_unauthenticated() {
     val response = executeRequest(path = path + defaultDashboard)
-    assertEquals(0, response.tabs.size)
+    assertEquals(0, response.dashboardMetadata.tabs.size)
   }
 
   @Test fun customCapabilityAccess_unauthorized() {
@@ -38,7 +37,7 @@ class DashboardMetadataActionTest {
       user = "sandy",
       capabilities = "guest"
     )
-    assertEquals(0, response.tabs.size)
+    assertEquals(0, response.dashboardMetadata.tabs.size)
   }
 
   @Test fun customCapabilityAccess_authorized() {
@@ -47,9 +46,9 @@ class DashboardMetadataActionTest {
       user = "sandy",
       capabilities = "admin_access"
     )
-    assertEquals(2, response.tabs.size)
-    assertNotNull(response.tabs.find { it.name == "Config" })
-    assertNotNull(response.tabs.find { it.name == "Web Actions" })
+    assertEquals(2, response.dashboardMetadata.tabs.size)
+    assertNotNull(response.dashboardMetadata.tabs.find { it.name == "Config" })
+    assertNotNull(response.dashboardMetadata.tabs.find { it.name == "Web Actions" })
   }
 
   @Test fun loadOtherDashboardTabs() {
@@ -59,8 +58,30 @@ class DashboardMetadataActionTest {
       user = "sandy",
       capabilities = "test_admin_access"
     )
-    assertEquals(1, response.tabs.size)
-    assertNotNull(response.tabs.find { it.name == "Test Dashboard Tab" })
+    assertEquals(1, response.dashboardMetadata.tabs.size)
+    assertNotNull(response.dashboardMetadata.tabs.find { it.name == "Test Dashboard Tab" })
+  }
+
+  @Test fun loadDashboardNavbarItems() {
+    val dashboard = DashboardMetadataActionTestDashboard::class.simpleName!!
+    val response = executeRequest(
+      path = path + dashboard,
+      user = "sandy",
+      capabilities = "test_admin_access"
+    )
+    assertEquals(1, response.dashboardMetadata.navbar_items.size)
+    assertEquals("<a href=\"https://cash.app/\">Test Navbar Link</a>",
+      response.dashboardMetadata.navbar_items.first())
+  }
+
+  @Test fun loadDashboardNavbarStatus() {
+    val dashboard = DashboardMetadataActionTestDashboard::class.simpleName!!
+    val response = executeRequest(
+      path = path + dashboard,
+      user = "sandy",
+      capabilities = "test_admin_access"
+    )
+    assertEquals("Test Status", response.dashboardMetadata.navbar_status)
   }
 
   private fun executeRequest(

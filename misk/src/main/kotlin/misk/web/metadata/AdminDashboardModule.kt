@@ -27,8 +27,9 @@ class AdminDashboardModule(val environment: Environment) : KAbstractModule() {
     // Adds open CORS headers in development to allow through API calls from webpack servers
     multibind<NetworkInterceptor.Factory>().to<WideOpenDevelopmentInterceptorFactory>()
 
-    // Initialize DashboardTab multibinding list
     newMultibinder<DashboardTab>()
+    newMultibinder<DashboardMetadataAction.DashboardNavbarItem>()
+    newMultibinder<DashboardMetadataAction.DashboardNavbarStatus>()
 
     // Add metadata actions to support dashboards
     install(WebActionModule.create<DashboardMetadataAction>())
